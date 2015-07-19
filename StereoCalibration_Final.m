@@ -1,3 +1,10 @@
+%% Stereo Calibration, rectification, disparity map and 3D point cloud
+% Algorithm for perfoming a calibration of a stereo camera system.
+% By the use of the estimated camera parameters one can rectify the stereo
+% images in order to calculate the disparity map of each image pair.
+% Finally a 3D point cloud reconstructs the scene to determine the distance
+% of object points.
+
 %% Stereo Calibration
 
 % Number of input images
@@ -46,6 +53,7 @@ displayErrors(estimationErrors, stereoParams);
 
 %% Rectification and disparity map
 
+% Initialize image cells
 I1 = cell(1, numImagePairs);
 I2 = cell(1, numImagePairs);
 J1 = cell(1, numImagePairs);

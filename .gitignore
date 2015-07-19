@@ -1,3 +1,5 @@
 *.jpeg
 StereoCalibrate_Kleinfeld.m
 StereoCalibration.m
+*.png
+*.html
