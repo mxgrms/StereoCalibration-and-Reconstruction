@@ -59,7 +59,7 @@ I2 = cell(1, numImagePairs);
 J1 = cell(1, numImagePairs);
 J2 = cell(1, numImagePairs);
 
-
+% Correct distortion and rectify images
 for i = 1:numImagePairs
 I1{i} = imread(imageFileNames1{i});
 I2{i} = imread(imageFileNames2{i});
@@ -90,7 +90,7 @@ elseif not(waitforbuttonpress)
     pause % Enable processing the figure
 end
 catch
-    break % Stop plotting results
+    break % Stop plotting results if one figure was closed
 end
 
 close all % Close figure if key was not hit
@@ -127,8 +127,8 @@ point3D = point3D / 1000;
 
 % Plot points between 0 and 2 meters away from the camera.
 z = point3D(:, :, 3);
-maxZ = 2; % Maximimum distance in meters
 minZ = 0; % Minimum distance in meters
+maxZ = 2; % Maximimum distance in meters
 zdisp = z;
 zdisp(z < minZ | z > maxZ) = NaN; % Erase all points outside the distance interval
 point3Ddisp = point3D;
