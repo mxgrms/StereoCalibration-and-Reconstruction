@@ -18,6 +18,12 @@ imageFileNames2 = cell(numImagePairs, 1);
 imageDir = fullfile(workspaceDir, 'StereoCalibration', 'Grossbild');
 
 % Filenames
+% -> All images have to be seperated into two folders "Left" and ...
+% "Right", where the position of the cameras are determined in front ...
+% of the system (not the view of the cameras); otherwise you have to ...
+% change the disparity range from negative to positive
+% -> Every name of an image pair includes the camera direction "L" ...
+% (left) or "R" (right) and a number from 1 to numImagePairs, e.g. "L1"
 for i = 1:numImagePairs
     imageFileNames1{i} = fullfile(imageDir, 'Left', ...
         sprintf('L%d.jpeg', i));
@@ -29,15 +35,16 @@ end
 [imagePoints, boardSize, imagesUsed] = ...
     detectCheckerboardPoints(imageFileNames1, imageFileNames2);
 
-% Number of picture(s) without detected checkerboard points
+% Number of image(s) without detected checkerboard points
 notUsed = find(ismember(imagesUsed, 0, 'rows'));
+% Name all the images without detected checkerboard points
 if numImagePairs ~= notUsed
 hint = sprintf(['\nWarning: Failed to detect checkerboard points in' ...
     ' stereo pair %d!\n'], notUsed);
 disp(hint);
 end
 
-% Generate world coordinates of the checkerboard keypoints
+% Generate world coordinates of the checkerboard points
 squareSize = 25;  % in units of 'mm'
 worldPoints = generateCheckerboardPoints(boardSize, squareSize);
 
@@ -83,11 +90,13 @@ end
 % Maximum shift from left to right image: -77 Pixel in image 5
 % -> DisparityRange = [-80, 0] (must be dividible by 16!)
 
+% Compare undistorted image and disparity map
 for i = 1:size(pairsUsed,1)
-%Display undistorted image
-figure('Name', 'Comparison of rectified image and disparity map', ...
-    'NumberTitle', 'off', 'Units', 'normalized', 'Position', ...
-    [0, 0, 1, 0.8]);
+% Display undistorted image
+figureName1 = sprintf(['Image %d: Comparison of rectified image and ' ...
+    'disparity map'], i);
+figure('Name', figureName1, 'NumberTitle', 'off', 'Units', ...
+    'normalized', 'Position', [0, 0, 1, 0.8]);
 subplot(1,2,1); imshow(J1{i}); title('Rectified Image', 'FontUnits', ...
     'points', 'FontSize', 15);
 
@@ -101,6 +110,8 @@ subplot(1,2,2); imshow(disparityMap, [-80 0], ...
 colormap('jet');
 colorbar;
 
+% Show the next image by hitting a key or continue with displaying the ...
+% 3D reconstruction of the scene by closing a figure
 try
 if waitforbuttonpress
     close all
@@ -117,8 +128,8 @@ end
 
 %% 3D point cloud
 
-% Choose picture to be reconstructed
-prompt = '\nWhich picture would you like to reconstruct? - ';
+% Choose image to be reconstructed
+prompt = '\nWhich image would you like to reconstruct? - ';
 rightNumber = false;
 
 % Verifying the chosen number
@@ -127,12 +138,13 @@ while ~rightNumber
     if (imageNumber >= 1) && (imageNumber <= numImagePairs)
         rightNumber = true;
     else
-        warning = sprintf(['\nWarning: You can only choose a picture' ...
+        warning = sprintf(['\nWarning: You can only choose an image' ...
             ' between %d and %d'], 1, numImagePairs);
         disp(warning);
     end
 end
 
+% Calculate disparity map of the chosen image
 disparityMap = disparity(rgb2gray(J1{imageNumber}), ...
     rgb2gray(J2{imageNumber}), 'DisparityRange', [-80 0], 'Method', ...
     'SemiGlobal', 'UniquenessThreshold', 5, 'DistanceThreshold', 40);
@@ -143,18 +155,19 @@ point3D = reconstructScene(disparityMap, stereoParams);
 % Convert from millimeters to meters.
 point3D = point3D / 1000;
 
-% Plot points between 0 and 2 meters away from the camera.
+% Plot points between 1 and 3 meters away from the camera.
 z = point3D(:, :, 3);
-minZ = 0; % Minimum distance in meters
-maxZ = 2; % Maximimum distance in meters
+minZ = 1; % Minimum distance in meters
+maxZ = 3; % Maximimum distance in meters
 zdisp = z;
 % Erase all points outside the distance interval
 zdisp(z < minZ | z > maxZ) = NaN; 
 point3Ddisp = point3D;
 point3Ddisp(:,:,3) = zdisp; % Write back new distance values
-figure('Name', 'Reconstructed scene from disparity map', ...
-    'NumberTitle', 'off', 'Units', 'normalized', 'Position', ...
-    [0, 0, 1, 0.8]);
+figureName2 = sprintf('Image %d: Reconstructed scene from disparity map',...
+    imageNumber);
+figure('Name', figureName2, 'NumberTitle', 'off', 'Units', 'normalized', ...
+    'Position', [0, 0, 1, 0.8]);
 showPointCloud(point3Ddisp, J1{imageNumber}, 'VerticalAxis', 'Y',...
     'VerticalAxisDir', 'Down' );
 xlabel('X');
