@@ -7,7 +7,7 @@
 % distance of object points.
 
 % Author: Maximilian Grams
-% Version: 1.07
+% Version: 1.08
 
 %% Stereo Calibration
 
@@ -113,8 +113,8 @@ subplot(1,2,2); imshow(disparityMap, [0 80], ...
 colormap('jet');
 colorbar;
 
-% Show the next image by hitting a key or continue with displaying the ...
-% 3D reconstruction of the scene by closing a figure
+% Show the next image by hitting a key or continue with displaying ...
+% the 3D reconstruction of the scene by closing a figure
 try
 if waitforbuttonpress
     close all
@@ -155,10 +155,10 @@ disparityMap = disparity(rgb2gray(J1{imageNumber}), ...
 % Reconstruction of disparity map
 point3D = reconstructScene(disparityMap, stereoParams);
 
-% Convert from millimeters to meters.
+% Convert from millimeters to meters
 point3D = point3D / 1000;
 
-% Plot points between 1 and 3 meters away from the camera.
+% Plot points between 1 and 3 meters away from the camera
 z = point3D(:, :, 3);
 minZ = 1; % Minimum distance in meters
 maxZ = 3; % Maximimum distance in meters
@@ -167,10 +167,10 @@ zdisp = z;
 zdisp(z < minZ | z > maxZ) = NaN; 
 point3Ddisp = point3D;
 point3Ddisp(:,:,3) = zdisp; % Write back new distance values
-figureName2 = sprintf('Image %d: Reconstructed scene from disparity map',...
-    imageNumber);
-figure('Name', figureName2, 'NumberTitle', 'off', 'Units', 'normalized', ...
-    'Position', [0, 0, 1, 0.8]);
+figureName2 = sprintf(['Image %d: Reconstructed scene from disparity' ...
+    ' map'], imageNumber);
+figure('Name', figureName2, 'NumberTitle', 'off', 'Units', ...
+    'normalized', 'Position', [0, 0, 1, 0.8]);
 showPointCloud(point3Ddisp, J1{imageNumber}, 'VerticalAxis', 'Y',...
     'VerticalAxisDir', 'Down' );
 xlabel('X');
