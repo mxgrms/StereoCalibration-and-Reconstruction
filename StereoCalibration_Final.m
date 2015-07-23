@@ -6,6 +6,9 @@
 % Finally a 3D point cloud reconstructs the scene to determine the ...
 % distance of object points.
 
+% Author: Maximilian Grams
+% Version: 1.07
+
 %% Stereo Calibration
 
 % Number of input images
