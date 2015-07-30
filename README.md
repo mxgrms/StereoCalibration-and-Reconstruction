@@ -1,4 +1,4 @@
-# StereoCalibration
+# Stereo Calibration and  3D Reconstruction
 MATLAB algorithm for calibrating a stereo camera system, displaying a disparity map, and doing a 3D reconstruction of the captured scene.
 
 ## Functions
